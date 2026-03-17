@@ -10,9 +10,9 @@ const commands = [
         .setDescription('Which raid?')
         .setRequired(true)
         .addChoices(
-          { name: "Nerub'ar Palace", value: "Nerub'ar Palace" },
-          { name: 'Liberation of the Undermine', value: 'Liberation of the Undermine' },
-          { name: 'Manaforge Omega', value: 'Manaforge Omega' }
+          { name: "Voidspire", value: "Voidspire" },
+          { name: "Dreamrift", value: "Dreamrift" },
+          { name: "March on Quel'Danas", value: "March on Quel'Danas" }
         )
     )
     .addStringOption((opt) =>
