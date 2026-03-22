@@ -131,7 +131,7 @@ function buildButtons() {
     new ButtonBuilder()
       .setCustomId('role_healer')
       .setEmoji('💊')
-      .setLabel('Gay like Bratch')
+      .setLabel('HEALZ')
       .setStyle(ButtonStyle.Primary)
   );
 
