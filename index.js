@@ -33,8 +33,37 @@ const GUILD_ID = process.env.GUILD_ID;
 const RAIDER_ROLE = process.env.RAIDER_ROLE;
 const TRUE_GAMER_ROLE = process.env.TRUE_GAMER_ROLE;
 
+const TANK_ROLE_ID = process.env.TANK_ROLE_ID;
+const DPS_ROLE_ID = process.env.DPS_ROLE_ID;
+const HEALER_ROLE_ID = process.env.HEALER_ROLE_ID;
+
+function getUserRaidRoles(member) {
+  const roles = [];
+
+  if (!member || !member.roles || !member.roles.cache) {
+    return roles;
+  }
+
+  if (TANK_ROLE_ID && member.roles.cache.has(TANK_ROLE_ID)) {
+    roles.push('Tank');
+  }
+
+  if (DPS_ROLE_ID && member.roles.cache.has(DPS_ROLE_ID)) {
+    roles.push('DPS');
+  }
+
+  if (HEALER_ROLE_ID && member.roles.cache.has(HEALER_ROLE_ID)) {
+    roles.push('Healer');
+  }
+
+  return roles;
+}
+
 const client = new Client({
-  intents: [GatewayIntentBits.Guilds],
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMembers, // ✅ REQUIRED
+  ],
   partials: [Partials.Channel],
 });
 
@@ -43,8 +72,8 @@ const rest = new REST({ version: '10' }).setToken(TOKEN);
 (async () => {
   try {
     await rest.put(
-      Routes.applicationGuildCommands(CLIENT_ID, GUILD_ID),
-      { body: commands }
+        Routes.applicationGuildCommands(CLIENT_ID, GUILD_ID),
+        { body: commands }
     );
     console.log('Slash commands registered.');
   } catch (error) {
@@ -138,7 +167,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
         let cancelledTitle = `❌ **Raid Cancelled — ${raid.raidName}`;
         if (raid.details) {
-            cancelledTitle += ` - ${raid.details}`;
+          cancelledTitle += ` - ${raid.details}`;
         }
         cancelledTitle += `**`;
 
@@ -218,7 +247,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
         let newDisplayName = raid.raidName;
         if (raid.details) {
-            newDisplayName = `${raid.raidName} — ${raid.details}`;
+          newDisplayName = `${raid.raidName} — ${raid.details}`;
         }
 
         const channel = interaction.channel;
@@ -272,37 +301,17 @@ client.on(Events.InteractionCreate, async (interaction) => {
       }
 
       const id = interaction.customId;
+      const member = interaction.member;
 
       if (id === 'raid_confirm') {
         entry.status = 'confirm';
+        entry.roles = new Set(getUserRaidRoles(member));
       } else if (id === 'raid_maybe') {
         entry.status = 'maybe';
+        entry.roles = new Set(getUserRaidRoles(member));
       } else if (id === 'raid_no') {
         entry.status = 'declined';
-      }
-
-      if (id.startsWith('role_')) {
-        let roleName = null;
-
-        if (id === 'role_tank') {
-          roleName = 'Tank';
-        } else if (id === 'role_dps') {
-          roleName = 'DPS';
-        } else if (id === 'role_healer') {
-          roleName = 'Healer';
-        }
-
-        if (roleName !== null) {
-          if (entry.roles.has(roleName)) {
-            entry.roles.delete(roleName);
-          } else {
-            entry.roles.add(roleName);
-          }
-
-          if (!entry.status) {
-            entry.status = 'maybe';
-          }
-        }
+        entry.roles.clear();
       }
 
       const updatedEmbed = renderRaidEmbed(raid);

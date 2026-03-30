@@ -113,7 +113,7 @@ function buildButtons() {
       .setStyle(ButtonStyle.Primary),
     new ButtonBuilder()
       .setCustomId('raid_no')
-      .setLabel('Declined')
+      .setLabel('NEIN!')
       .setStyle(ButtonStyle.Danger)
   );
 
@@ -135,7 +135,7 @@ function buildButtons() {
       .setStyle(ButtonStyle.Primary)
   );
 
-  return [statusRow, roleRow];
+  return [statusRow];
 }
 
 function buildDisabledButtons() {
@@ -149,7 +149,7 @@ function buildDisabledButtons() {
     b.setDisabled(true);
   });
 
-  return [statusRow, roleRow];
+  return [statusRow];
 }
 
 module.exports = {
